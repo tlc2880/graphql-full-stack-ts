@@ -33,6 +33,17 @@ const QUERY_ALL_USERS = gql`
   }
 `;
 
+const GET_USER_BY_NAME = gql`
+  query User($name: String!) {
+    findUserName(name: $name) {
+      name
+      username
+      age
+      nationality
+    }
+  }
+`;
+
 const QUERY_ALL_MOVIES = gql`
   query GetAllMovies {
     movies {
@@ -46,6 +57,8 @@ const GET_MOVIE_BY_NAME = gql`
     movie(name: $name) {
       name
       yearOfPublication
+      rating
+      isInTheaters
     }
   }
 `;
@@ -60,6 +73,7 @@ const CREATE_USER_MUTATION = gql`
 `;
 
 function DisplayData() {
+  const [userSearchedName, setUserSearchedName] = useState("James");
   const [movieSearched, setMovieSearched] = useState("");
 
   // Create User States
@@ -69,7 +83,13 @@ function DisplayData() {
   const [nationality, setNationality] = useState("");
 
   const { data, loading, refetch } = useQuery<UsersResult>(QUERY_ALL_USERS);
+
   const { data: movieData } = useQuery(QUERY_ALL_MOVIES);
+    const [
+    fetchName,
+    { data: userSearchedNameData, error: userErrorName },
+  ] = useLazyQuery(GET_USER_BY_NAME);
+
   const [
     fetchMovie,
     { data: movieSearchedData, error: movieError },
@@ -143,6 +163,44 @@ function DisplayData() {
           );
         })}
 
+      <div>
+        <input
+          type="text"
+          placeholder="James..."
+          onChange={(event) => {
+            setUserSearchedName(event.target.value);
+          }}
+        />
+         <button
+          onClick={() => {
+            fetchName({
+              variables: {
+                name: userSearchedName,
+              },
+            });
+          }}
+        > 
+          Fetch Name
+        </button>
+        <div>
+          {userSearchedNameData && (
+            <div>
+              <h3>Name: {userSearchedNameData.findUserName.name}</h3>
+              <h3>
+                username: {userSearchedNameData.findUserName.username}
+              </h3>
+              <h3>
+                Age: {userSearchedNameData.findUserName.age}
+              </h3>
+              <h3>
+                Nationality: {userSearchedNameData.findUserName.nationality}
+              </h3>{" "}
+            </div>
+          )}
+          {userErrorName && <h3> There was an error fetching the data</h3>}
+        </div>
+      </div>
+
       {movieData &&
         movieData.movies.map((movie: any) => {
           return <h6>Movie Name: {movie.name}</h6>;
@@ -173,6 +231,12 @@ function DisplayData() {
               <h6>MovieName: {movieSearchedData.movie.name}</h6>
               <h6>
                 Year Of Publication: {movieSearchedData.movie.yearOfPublication}
+              </h6>
+              <h6>
+                Rating: {movieSearchedData.movie.rating}
+              </h6>
+              <h6>
+                Is in theaters: {movieSearchedData.movie.isInTheaters}
               </h6>{" "}
             </div>
           )}
