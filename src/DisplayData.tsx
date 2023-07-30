@@ -79,6 +79,17 @@ const GET_MOVIE_BY_NAME = gql`
   }
 `;
 
+const GET_MOVIE_BY_ID = gql`
+  query Movie($id: ID!) {
+    findMovieId(id: $id) {
+      name
+      yearOfPublication
+      rating
+      isInTheaters
+    }
+  }
+`;
+
 const CREATE_USER_MUTATION = gql`
   mutation CreateUser($input: CreateUserInput!) {
     createUser(input: $input) {
@@ -92,6 +103,7 @@ function DisplayData() {
   const [userSearchedName, setUserSearchedName] = useState("James");
   const [userSearchedId, setUserSearchedId] = useState("2");
   const [movieSearchedName, setMovieSearchedName] = useState("Interstellar");
+  const [movieSearchedId, setMovieSearchedId] = useState("1");
 
   // Create User States
   const [name, setName] = useState("");
@@ -113,6 +125,10 @@ function DisplayData() {
     fetchMovieName,
     { data: movieSearchedNameData, error: movieErrorName },
   ] = useLazyQuery(GET_MOVIE_BY_NAME);
+  const [
+    fetchMovieId,
+    { data: movieSearchedIdData, error: movieErrorId },
+  ] = useLazyQuery(GET_MOVIE_BY_ID);
 
   const [createUser] = useMutation(CREATE_USER_MUTATION);
 
@@ -305,6 +321,44 @@ function DisplayData() {
             </div>
           )}
           {movieErrorName && <h3> There was an error fetching the data</h3>}
+        </div>
+      </div>
+
+      <div>
+        <input
+          type="text"
+          placeholder="1..."
+          onChange={(event) => {
+            setMovieSearchedId(event.target.value);
+          }}
+        />
+         <button
+          onClick={() => {
+            fetchMovieId({
+              variables: {
+                id: movieSearchedId,
+              },
+            });
+          }}
+        > 
+          Fetch Movie Id
+        </button>
+        <div>
+          {movieSearchedIdData && (
+            <div>
+              <h3>MovieName: {movieSearchedIdData.findMovieId.name}</h3>
+              <h3>
+                Year Of Publication: {movieSearchedIdData.findMovieId.yearOfPublication}
+              </h3>
+              <h3>
+                Rating: {movieSearchedIdData.findMovieId.rating}
+              </h3>
+              <h3>
+                Is in Theaters: {JSON.stringify(movieSearchedIdData.findMovieId.isInTheaters)}
+              </h3>{" "}
+            </div>
+          )}
+          {movieErrorId && <h3> There was an error fetching the data</h3>}
         </div>
       </div>
     </div>
