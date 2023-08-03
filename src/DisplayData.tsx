@@ -110,6 +110,15 @@ const CREATE_USER_MUTATION = gql`
   }
 `;
 
+const UPDATE_USERNAME_MUTATION = gql`
+  mutation UpdateUsername($input: UpdateUsernameInput!) {
+    updateUsername(input: $input) {
+      id
+      username
+    }
+  }
+`;
+
 function DisplayData() {
   const [userSearchedName, setUserSearchedName] = useState("James");
   const [userSearchedId, setUserSearchedId] = useState("2");
@@ -122,6 +131,8 @@ function DisplayData() {
   const [username, setUsername] = useState("");
   const [age, setAge] = useState("");
   const [nationality, setNationality] = useState("");
+  const [userId, setUserId] = useState("0");
+  const [newUsername, setNewUsername] = useState("");
 
   const { data, loading, refetch } = useQuery<UsersResult>(QUERY_ALL_USERS);
   const { data: movieData } = useQuery(QUERY_ALL_MOVIES);
@@ -147,6 +158,7 @@ function DisplayData() {
   ] = useLazyQuery(GET_MOVIE_BY_RATING);
 
   const [createUser] = useMutation(CREATE_USER_MUTATION);
+  const [updateUserName] = useMutation(UPDATE_USERNAME_MUTATION);
 
   if (loading) {
     return <h6> DATA IS LOADING...</h6>;
@@ -197,6 +209,37 @@ function DisplayData() {
           Create User
         </button>
       </div>
+    
+    <div>
+      <input
+        type="text"
+        placeholder="User Id..."
+        onChange={(event) => {
+          setUserId(event.target.value);
+        }}
+      />
+      <input
+        type="text"
+        placeholder="New Username..."
+        onChange={(event) => {
+          setNewUsername(event.target.value);
+        }}
+      />
+      <button
+          onClick={() => {
+            updateUserName({
+              variables: {
+                input: { userId, newUsername },
+              },
+            });
+
+            refetch();
+          }}
+        >
+          Update Username
+        </button>
+      </div>
+
       {data &&
         data.users.map((
             user: {name: string;
@@ -236,19 +279,19 @@ function DisplayData() {
         <div>
           {userSearchedNameData && (
             <div>
-              <h3>Name: {userSearchedNameData.findUserName.name}</h3>
-              <h3>
+              <h6>Name: {userSearchedNameData.findUserName.name}</h6>
+              <h6>
                 username: {userSearchedNameData.findUserName.username}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Age: {userSearchedNameData.findUserName.age}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Nationality: {userSearchedNameData.findUserName.nationality}
-              </h3>{" "}
+              </h6>{" "}
             </div>
           )}
-          {userErrorName && <h3> There was an error fetching the data</h3>}
+          {userErrorName && <h6> There was an error fetching the data</h6>}
         </div>
       </div>
 
@@ -274,19 +317,19 @@ function DisplayData() {
         <div>
           {userSearchedIdData && (
             <div>
-              <h3>Name: {userSearchedIdData.findUserId.name}</h3>
-              <h3>
+              <h6>Name: {userSearchedIdData.findUserId.name}</h6>
+              <h6>
                 username: {userSearchedIdData.findUserId.username}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Age: {userSearchedIdData.findUserId.age}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Nationality: {userSearchedIdData.findUserId.nationality}
-              </h3>{" "}
+              </h6>{" "}
             </div>
           )}
-          {userErrorId && <h3> There was an error fetching the data</h3>}
+          {userErrorId && <h6> There was an error fetching the data</h6>}
         </div>
       </div>
 
@@ -324,19 +367,19 @@ function DisplayData() {
         <div>
           {movieSearchedNameData && (
             <div>
-              <h3>Movie Name: {movieSearchedNameData.findMovieName.name}</h3>
-              <h3>
+              <h6>Movie Name: {movieSearchedNameData.findMovieName.name}</h6>
+              <h6>
                 Year Of Publication: {movieSearchedNameData.findMovieName.yearOfPublication}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Rating: {movieSearchedNameData.findMovieName.rating}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Is in Theaters: {JSON.stringify(movieSearchedNameData.findMovieName.isInTheaters)}
-              </h3>{" "}
+              </h6>{" "}
             </div>
           )}
-          {movieErrorName && <h3> There was an error fetching the data</h3>}
+          {movieErrorName && <h6> There was an error fetching the data</h6>}
         </div>
       </div>
 
@@ -362,19 +405,19 @@ function DisplayData() {
         <div>
           {movieSearchedIdData && (
             <div>
-              <h3>MovieName: {movieSearchedIdData.findMovieId.name}</h3>
-              <h3>
+              <h6>MovieName: {movieSearchedIdData.findMovieId.name}</h6>
+              <h6>
                 Year Of Publication: {movieSearchedIdData.findMovieId.yearOfPublication}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Rating: {movieSearchedIdData.findMovieId.rating}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Is in Theaters: {JSON.stringify(movieSearchedIdData.findMovieId.isInTheaters)}
-              </h3>{" "}
+              </h6>{" "}
             </div>
           )}
-          {movieErrorId && <h3> There was an error fetching the data</h3>}
+          {movieErrorId && <h6>There was an error fetching the data</h6>}
         </div>
       </div>
 
@@ -400,19 +443,19 @@ function DisplayData() {
         <div>
           {movieSearchedRatingData && (
             <div>
-              <h3>MovieName: {movieSearchedRatingData.findMovieRating.name}</h3>
-              <h3>
+              <h6>MovieName: {movieSearchedRatingData.findMovieRating.name}</h6>
+              <h6>
                 Year Of Publication: {movieSearchedRatingData.findMovieRating.yearOfPublication}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Rating: {movieSearchedRatingData.findMovieRating.rating}
-              </h3>
-              <h3>
+              </h6>
+              <h6>
                 Is in Theaters: {JSON.stringify(movieSearchedRatingData.findMovieRating.isInTheaters)}
-              </h3>{" "}
+              </h6>{" "}
             </div>
           )}
-          {movieErrorRating && <h3> There was an error fetching the data</h3>}
+          {movieErrorRating && <h6> There was an error fetching the data</h6>}
         </div>
       </div>
     </div>
